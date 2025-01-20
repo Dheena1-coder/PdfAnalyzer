@@ -12,7 +12,7 @@ import urllib.request
 import zipfile
 
 # Define the model URL and local path for saving the wheel file
-model_zip_url = "https://github.com/your-username/your-repo/releases/download/your-release/en_core_web_md-3.8.0.zip"  # URL to the .zip file on GitHub
+model_zip_url = "https://github.com/Dheena1-coder/PdfAnalyzer/blob/master/en_core_web_md-3.8.0-py3-none-any..zip"  # URL to the .zip file on GitHub
 model_path = os.path.join(os.getcwd(), "models", "en_core_web_md")
 
 # Function to download and install the SpaCy model from the provided URL (zip file)
