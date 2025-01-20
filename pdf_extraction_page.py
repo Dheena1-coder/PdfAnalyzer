@@ -9,26 +9,28 @@ from io import BytesIO
 from PIL import Image, ImageEnhance  # Import Pillow for image processing
 import tempfile
 import zipfile
-
+import pip
 
 # Define the model ZIP file path and model name
-model_zip_path = "https://github.com/Dheena1-coder/PdfAnalyzer/blob/master/en_core_web_md-3.8.0-py3-none-any.zip"  # Specify the correct path to your model ZIP file
+model_zip_path = "path_to_your_model.zip"  # Specify the correct path to your model ZIP file
+whl_file_name = "en_core_web_md-3.8.0-py3-none-any.whl"  # The wheel file name from the ZIP
 model_name = "en_core_web_md"
 
-# Function to extract and install the SpaCy model from a ZIP file
-def extract_and_install_spacy_model(zip_path):
+# Function to extract the .whl file from the ZIP and install it
+def extract_and_install_spacy_model(zip_path, whl_file_name):
     try:
         # Create a temporary directory to extract the model
         temp_dir = tempfile.mkdtemp()
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(temp_dir)
         
-        model_path = os.path.join(temp_dir, model_name)
+        # Construct the path to the .whl file
+        whl_path = os.path.join(temp_dir, whl_file_name)
         
-        # Install the model from the extracted folder
-        print(f"Installing SpaCy model from {model_path}...")
-        spacy.cli.link(model_path, model_name)
-        print(f"SpaCy model installed successfully from {model_path}.")
+        # Install the model from the .whl file using pip
+        print(f"Installing SpaCy model from {whl_path}...")
+        pip.main(['install', whl_path])  # Use pip to install the .whl file
+        print(f"SpaCy model installed successfully from {whl_path}.")
     except Exception as e:
         print(f"Error installing the model: {e}")
 
@@ -39,7 +41,7 @@ def ensure_model():
         spacy.load(model_name)
     except OSError:
         print(f"Model '{model_name}' not found, extracting and installing from ZIP file...")
-        extract_and_install_spacy_model(model_zip_path)
+        extract_and_install_spacy_model(model_zip_path, whl_file_name)
         spacy.load(model_name)  # Load the model after installation
 
 # Function to extract keyword information and surrounding context from PDF
