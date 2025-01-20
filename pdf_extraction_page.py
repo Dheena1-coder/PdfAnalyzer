@@ -9,6 +9,18 @@ from io import BytesIO
 from PIL import Image, ImageEnhance  # Import Pillow for image processing
 import tempfile
 
+# Function to download the SpaCy model if it isn't installed
+def download_spacy_model():
+    model_name = 'en_core_web_md'
+    model_path = os.path.join(spacy.util.get_data_path(), model_name)
+    if not os.path.exists(model_path):
+        print(f"Model {model_name} not found. Downloading now...")
+        from spacy.cli import download
+        download(model_name)
+
+# Download the model if not already available
+download_spacy_model()
+
 # Load the SpaCy English model
 nlp = spacy.load('en_core_web_md')
 
