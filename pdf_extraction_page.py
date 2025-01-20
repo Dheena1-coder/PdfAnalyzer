@@ -12,22 +12,29 @@ import urllib.request
 import zipfile
 
 # Define the model URL and local path for saving the wheel file
-model_url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.8.0/en_core_web_md-3.8.0-py3-none-any.whl"
+model_zip_url = "https://github.com/your-username/your-repo/releases/download/your-release/en_core_web_md-3.8.0.zip"  # URL to the .zip file on GitHub
 model_path = os.path.join(os.getcwd(), "models", "en_core_web_md")
 
-
-# Function to download and install the SpaCy model from the provided URL
+# Function to download and install the SpaCy model from the provided URL (zip file)
 def download_and_install_spacy_model():
     try:
         # Check if the model is already installed
         if not os.path.exists(model_path):
-            print(f"Downloading model from {model_url}...")
-            # Download the model wheel file
-            urllib.request.urlretrieve(model_url, "en_core_web_md.whl")
+            print(f"Downloading model from {model_zip_url}...")
+            # Download the model zip file
+            zip_file_path = "en_core_web_md.zip"
+            urllib.request.urlretrieve(model_zip_url, zip_file_path)
 
+            print("Unzipping the SpaCy model...")
+            # Extract the .whl file from the .zip file
+            with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
+                zip_ref.extractall("models")  # Extract to 'models' directory
+                print(f"Model extracted to: {os.path.join('models', 'en_core_web_md')}")
+
+            # Install the model from the extracted .whl file
+            whl_file = os.path.join("models", "en_core_web_md", "en_core_web_md-3.8.0-py3-none-any.whl")
             print("Installing SpaCy model...")
-            # Install the model from the downloaded wheel file
-            os.system(f"pip install en_core_web_md.whl --target={model_path}")
+            os.system(f"pip install {whl_file} --target={model_path}")
             print("SpaCy model installed successfully.")
         else:
             print(f"Model is already installed at {model_path}")
