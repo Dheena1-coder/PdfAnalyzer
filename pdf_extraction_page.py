@@ -8,24 +8,43 @@ import time
 from io import BytesIO
 from PIL import Image, ImageEnhance  # Import Pillow for image processing
 import tempfile
-from spacy.cli import download
+import urllib.request
+import zipfile
 
-# Function to download the SpaCy model if it isn't installed
-def download_spacy_model():
-    model_name = 'en_core_web_md'
+# Define the model URL and local path for saving the wheel file
+model_url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.8.0/en_core_web_md-3.8.0-py3-none-any.whl"
+model_path = os.path.join(os.getcwd(), "models", "en_core_web_md")
+
+
+# Function to download and install the SpaCy model from the provided URL
+def download_and_install_spacy_model():
+    try:
+        # Check if the model is already installed
+        if not os.path.exists(model_path):
+            print(f"Downloading model from {model_url}...")
+            # Download the model wheel file
+            urllib.request.urlretrieve(model_url, "en_core_web_md.whl")
+
+            print("Installing SpaCy model...")
+            # Install the model from the downloaded wheel file
+            os.system(f"pip install en_core_web_md.whl --target={model_path}")
+            print("SpaCy model installed successfully.")
+        else:
+            print(f"Model is already installed at {model_path}")
+    except Exception as e:
+        print(f"Error downloading or installing the model: {e}")
+
+
+# Function to ensure SpaCy model is loaded
+def ensure_model():
     try:
         # Try to load the SpaCy model
-        spacy.load(model_name)
+        spacy.load('en_core_web_md')
     except OSError:
-        # If loading fails, download the model
-        print(f"Model {model_name} not found. Downloading now...")
-        download(model_name)
+        print("Model not found, downloading and installing...")
+        download_and_install_spacy_model()
+        spacy.load('en_core_web_md')
 
-# Download the model if not already available
-download_spacy_model()
-
-# Load the SpaCy English model
-nlp = spacy.load('en_core_web_md')
 
 # Function to extract keyword information and surrounding context from PDF
 def extract_keyword_info(pdf_path, keywords, surrounding_sentences_count=2):
@@ -70,12 +89,14 @@ def extract_keyword_info(pdf_path, keywords, surrounding_sentences_count=2):
 
     return extracted_data
 
+
 # Function to highlight keywords in a sentence
 def highlight_keywords(text, keywords):
     """Highlight keywords in the sentence"""
     for keyword in keywords:
         text = re.sub(f'({re.escape(keyword)})', r'<b style="color: red;">\1</b>', text, flags=re.IGNORECASE)
     return text
+
 
 # Function to highlight keywords on a PDF page
 def highlight_pdf_page(pdf_path, page_number, keywords):
@@ -112,6 +133,7 @@ def highlight_pdf_page(pdf_path, page_number, keywords):
 
     return highlighted_pdf_path
 
+
 # Function to display keyword stats in a table
 def display_keyword_stats(filtered_results, keywords):
     """Display stats for keywords and the number of pages they are found on"""
@@ -124,6 +146,7 @@ def display_keyword_stats(filtered_results, keywords):
     stats_df = pd.DataFrame(stats_data, columns=["Keyword", "Occurrences", "Pages"])
     st.write("### Keyword Statistics")
     st.dataframe(stats_df)
+
 
 # Function to display PDF pages and highlight the keyword occurrences
 def display_pdf_pages(pdf_path, pages_with_matches, keywords):
@@ -162,6 +185,7 @@ def display_pdf_pages(pdf_path, pages_with_matches, keywords):
             images[i + 1] = img_byte_arr
     
     return images
+
 
 # Main function to run the Streamlit app
 def run():
@@ -234,5 +258,8 @@ def run():
         else:
             st.warning("No matches found for the given keywords.")
 
+
 if __name__ == "__main__":
+    download_and_install_spacy_model()
+    ensure_model()
     run()
