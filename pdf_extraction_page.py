@@ -8,21 +8,27 @@ import time
 from io import BytesIO
 from PIL import Image, ImageEnhance  # Import Pillow for image processing
 import tempfile
-import urllib.request
 import zipfile
 
 
-# Define the model URL for SpaCy
-model_url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.8.0/en_core_web_md-3.8.0-py3-none-any.whl"  # URL for your hosted model
+# Define the model ZIP file path and model name
+model_zip_path = "path_to_your_model.zip"  # Specify the correct path to your model ZIP file
 model_name = "en_core_web_md"
 
-# Function to download and install the SpaCy model directly from the GitHub URL
-def download_and_install_spacy_model():
+# Function to extract and install the SpaCy model from a ZIP file
+def extract_and_install_spacy_model(zip_path):
     try:
-        # Install the model directly from the URL using pip
-        print(f"Installing model from {model_url}...")
-        os.system(f"pip install {model_url}")
-        print("SpaCy model installed successfully.")
+        # Create a temporary directory to extract the model
+        temp_dir = tempfile.mkdtemp()
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            zip_ref.extractall(temp_dir)
+        
+        model_path = os.path.join(temp_dir, model_name)
+        
+        # Install the model from the extracted folder
+        print(f"Installing SpaCy model from {model_path}...")
+        spacy.cli.link(model_path, model_name)
+        print(f"SpaCy model installed successfully from {model_path}.")
     except Exception as e:
         print(f"Error installing the model: {e}")
 
@@ -32,8 +38,8 @@ def ensure_model():
         # Try to load the SpaCy model
         spacy.load(model_name)
     except OSError:
-        print("Model not found, downloading and installing...")
-        download_and_install_spacy_model()
+        print(f"Model '{model_name}' not found, extracting and installing from ZIP file...")
+        extract_and_install_spacy_model(model_zip_path)
         spacy.load(model_name)  # Load the model after installation
 
 # Function to extract keyword information and surrounding context from PDF
@@ -51,7 +57,7 @@ def extract_keyword_info(pdf_path, keywords, surrounding_sentences_count=2):
 
         if text:
             # Process the text with SpaCy to create a document object
-            doc_spacy = nlp(text)
+            doc_spacy = spacy.load(model_name)(text)
 
             # Tokenize into sentences
             sentences = [sent.text for sent in doc_spacy.sents]
@@ -250,6 +256,5 @@ def run():
 
 
 if __name__ == "__main__":
-    download_and_install_spacy_model()
     ensure_model()
     run()
