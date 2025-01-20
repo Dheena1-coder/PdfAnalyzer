@@ -1,8 +1,20 @@
+# PyMuPDF (also known as Fitz) - PDF parsing
 PyMuPDF==1.19.6
-spacy==3.6.0
+
+# Streamlit for building the app interface
 streamlit==1.15.0
-camelot-py[cv]  # Latest available version of camelot-py
-pandas==1.5.3
+
+# spaCy for NLP tasks
+spacy==3.6.0
+
+# camelot-py - PDF table extraction (use available version)
+camelot-py[cv]==1.20.1
+
+# PDF text extraction library
 pdfplumber==0.8.0
-tabula-py==2.5.3
+
+# Tabula-py (use available version)
+tabula-py==2.5.1
+
+# Python Imaging Library (for image-related tasks)
 Pillow==9.2.0
