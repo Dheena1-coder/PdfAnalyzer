@@ -9,21 +9,12 @@ from io import BytesIO
 from PIL import Image, ImageEnhance  # Import Pillow for image processing
 import tempfile
 import urllib.request
+import zipfile
+import nltk
+from nltk.tokenize import word_tokenize, sent_tokenize
 
-# Function to ensure SpaCy model is downloaded and loaded
-def ensure_model():
-    model_name = "en_core_web_sm"
-    try:
-        # Try to load the SpaCy model
-        spacy.load(model_name)
-    except OSError:
-        # If the model is not found, download it
-        print(f"Downloading model: {model_name}...")
-        os.system("python -m spacy download en_core_web_sm")  # Download the model
-        spacy.load(model_name)  # Load the model after installation
-
-# Ensure the model is downloaded and loaded
-ensure_model()
+# Ensure that NLTK data is downloaded (if necessary)
+nltk.download('punkt')  # Required for tokenization (both word_tokenize and sent_tokenize)
 
 # Function to extract keyword information and surrounding context from PDF
 def extract_keyword_info(pdf_path, keywords, surrounding_sentences_count=2):
@@ -39,11 +30,8 @@ def extract_keyword_info(pdf_path, keywords, surrounding_sentences_count=2):
         text = page.get_text()
 
         if text:
-            # Process the text with SpaCy to create a document object
-            doc_spacy = spacy.load("en_core_web_sm")(text)
-
-            # Tokenize into sentences
-            sentences = [sent.text for sent in doc_spacy.sents]
+            # Use NLTK for sentence tokenization (splitting the text into sentences)
+            sentences = sent_tokenize(text)
 
             # Find sentences containing any of the keywords
             matching_sentences = []
@@ -68,14 +56,12 @@ def extract_keyword_info(pdf_path, keywords, surrounding_sentences_count=2):
 
     return extracted_data
 
-
 # Function to highlight keywords in a sentence
 def highlight_keywords(text, keywords):
     """Highlight keywords in the sentence"""
     for keyword in keywords:
         text = re.sub(f'({re.escape(keyword)})', r'<b style="color: red;">\1</b>', text, flags=re.IGNORECASE)
     return text
-
 
 # Function to highlight keywords on a PDF page
 def highlight_pdf_page(pdf_path, page_number, keywords):
@@ -112,7 +98,6 @@ def highlight_pdf_page(pdf_path, page_number, keywords):
 
     return highlighted_pdf_path
 
-
 # Function to display keyword stats in a table
 def display_keyword_stats(filtered_results, keywords):
     """Display stats for keywords and the number of pages they are found on"""
@@ -125,7 +110,6 @@ def display_keyword_stats(filtered_results, keywords):
     stats_df = pd.DataFrame(stats_data, columns=["Keyword", "Occurrences", "Pages"])
     st.write("### Keyword Statistics")
     st.dataframe(stats_df)
-
 
 # Function to display PDF pages and highlight the keyword occurrences
 def display_pdf_pages(pdf_path, pages_with_matches, keywords):
@@ -164,7 +148,6 @@ def display_pdf_pages(pdf_path, pages_with_matches, keywords):
             images[i + 1] = img_byte_arr
     
     return images
-
 
 # Main function to run the Streamlit app
 def run():
@@ -236,7 +219,6 @@ def run():
             
         else:
             st.warning("No matches found for the given keywords.")
-
 
 if __name__ == "__main__":
     run()
