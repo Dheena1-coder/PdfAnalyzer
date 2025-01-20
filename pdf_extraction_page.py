@@ -11,47 +11,30 @@ import tempfile
 import urllib.request
 import zipfile
 
-# Define the model URL and local path for saving the wheel file
-model_zip_url = "https://github.com/Dheena1-coder/PdfAnalyzer/blob/master/en_core_web_md-3.8.0-py3-none-any..zip"  # URL to the .zip file on GitHub
-model_path = os.path.join(os.getcwd(), "models", "en_core_web_md")
 
-# Function to download and install the SpaCy model from the provided URL (zip file)
+# Define the model URL for SpaCy
+model_url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_md-3.8.0/en_core_web_md-3.8.0-py3-none-any.whl"  # URL for your hosted model
+model_name = "en_core_web_md"
+
+# Function to download and install the SpaCy model directly from the GitHub URL
 def download_and_install_spacy_model():
     try:
-        # Check if the model is already installed
-        if not os.path.exists(model_path):
-            print(f"Downloading model from {model_zip_url}...")
-            # Download the model zip file
-            zip_file_path = "en_core_web_md.zip"
-            urllib.request.urlretrieve(model_zip_url, zip_file_path)
-
-            print("Unzipping the SpaCy model...")
-            # Extract the .whl file from the .zip file
-            with zipfile.ZipFile(zip_file_path, 'r') as zip_ref:
-                zip_ref.extractall("models")  # Extract to 'models' directory
-                print(f"Model extracted to: {os.path.join('models', 'en_core_web_md')}")
-
-            # Install the model from the extracted .whl file
-            whl_file = os.path.join("models", "en_core_web_md", "en_core_web_md-3.8.0-py3-none-any.whl")
-            print("Installing SpaCy model...")
-            os.system(f"pip install {whl_file} --target={model_path}")
-            print("SpaCy model installed successfully.")
-        else:
-            print(f"Model is already installed at {model_path}")
+        # Install the model directly from the URL using pip
+        print(f"Installing model from {model_url}...")
+        os.system(f"pip install {model_url}")
+        print("SpaCy model installed successfully.")
     except Exception as e:
-        print(f"Error downloading or installing the model: {e}")
-
+        print(f"Error installing the model: {e}")
 
 # Function to ensure SpaCy model is loaded
 def ensure_model():
     try:
         # Try to load the SpaCy model
-        spacy.load('en_core_web_md')
+        spacy.load(model_name)
     except OSError:
         print("Model not found, downloading and installing...")
         download_and_install_spacy_model()
-        spacy.load('en_core_web_md')
-
+        spacy.load(model_name)  # Load the model after installation
 
 # Function to extract keyword information and surrounding context from PDF
 def extract_keyword_info(pdf_path, keywords, surrounding_sentences_count=2):
