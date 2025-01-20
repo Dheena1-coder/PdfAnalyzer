@@ -14,7 +14,11 @@ import nltk
 from nltk.tokenize import word_tokenize, sent_tokenize
 
 # Ensure that NLTK data is downloaded (if necessary)
-nltk.download('punkt')  # Required for tokenization (both word_tokenize and sent_tokenize)
+# Ensure that NLTK data is downloaded (if necessary)
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')  # Download 'punkt' if it's not already download  # Required for tokenization (both word_tokenize and sent_tokenize)
 
 # Function to extract keyword information and surrounding context from PDF
 def extract_keyword_info(pdf_path, keywords, surrounding_sentences_count=2):
