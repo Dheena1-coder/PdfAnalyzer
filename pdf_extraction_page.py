@@ -12,7 +12,7 @@ import zipfile
 
 
 # Define the model ZIP file path and model name
-model_zip_path = "path_to_your_model.zip"  # Specify the correct path to your model ZIP file
+model_zip_path = "https://github.com/Dheena1-coder/PdfAnalyzer/blob/master/en_core_web_md-3.8.0-py3-none-any.zip"  # Specify the correct path to your model ZIP file
 model_name = "en_core_web_md"
 
 # Function to extract and install the SpaCy model from a ZIP file
