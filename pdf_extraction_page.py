@@ -2,15 +2,13 @@ import fitz  # PyMuPDF
 import spacy
 import re
 import streamlit as st
-import camelot  # For table extraction
 import pandas as pd  # For handling Excel conversion
 import os
 import time
 from io import BytesIO
 from PIL import Image, ImageEnhance  # Import Pillow for image processing
-import pdfplumber
 import tempfile
-import tabula
+
 # Load the SpaCy English model
 nlp = spacy.load('en_core_web_md')
 
@@ -98,89 +96,6 @@ def highlight_pdf_page(pdf_path, page_number, keywords):
         print(f"Error: Unable to save PDF: {e}")
 
     return highlighted_pdf_path
-# Function to handle duplicate column names
-def handle_duplicate_columns(columns):
-    """Rename duplicate column names by appending a suffix (_1, _2, etc.)."""
-    seen = {}
-    new_columns = []
-    for col in columns:
-        if col in seen:
-            seen[col] += 1
-            new_columns.append(f"{col}_{seen[col]}")
-        else:
-            seen[col] = 0
-            new_columns.append(col)
-    return new_columns
-
-import camelot
-from PyPDF2 import PdfReader
-
-def extract_table_from_pdf_with_camelot(pdf_stream, page_number):
-    """Extract tables from a PDF page using Camelot."""
-    try:
-        # Save the BytesIO stream to a temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_file:
-            temp_file.write(pdf_stream.read())
-            temp_file_path = temp_file.name        
-        # Use Camelot to read the PDF from the BytesIO stream
-        tables = camelot.read_pdf(temp_file_path, pages=str(page_number), flavor='stream', edge_tol=200, row_tol=10, split_text=False)
-        
-        if tables:
-            # Convert tables to pandas DataFrame
-            table_dfs = [table.df for table in tables]
-            os.remove(temp_file_path)  # Clean up the temporary file
-            return table_dfs
-        else:
-            os.remove(temp_file_path)  # Clean up the temporary file
-            st.warning("No tables found on this page.")
-            return None
-    except Exception as e:
-        # If an error occurs, print it and clean up any created files
-        st.error(f"Error extracting tables: {e}")
-        if os.path.exists(temp_file_path):
-            os.remove(temp_file_path)  # Clean up the temporary file if it exists
-        return None
-# Function to extract table from PDF using Tabula (for structured tables)
-def extract_table_from_pdf_with_tabula(pdf_stream, page_number):
-    """Extract tables from a PDF page using Tabula."""
-    try:
-        # Save the BytesIO stream to a temporary file
-        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_file:
-            temp_file.write(pdf_stream.read())
-            temp_file_path = temp_file.name
-
-        # Use Tabula to extract tables from the specific page
-        tables = tabula.read_pdf(temp_file_path, pages=page_number, multiple_tables=True, lattice=True)
-
-        if tables:
-            # Convert tables to pandas DataFrame
-            table_dfs = [pd.DataFrame(table) for table in tables]
-            os.remove(temp_file_path)  # Clean up the temporary file
-            return table_dfs
-        else:
-            os.remove(temp_file_path)  # Clean up the temporary file
-            st.warning("No tables found on this page.")
-            return None
-    except Exception as e:
-        # If an error occurs, print it and clean up any created files
-        st.error(f"Error extracting tables: {e}")
-        if os.path.exists(temp_file_path):
-            os.remove(temp_file_path)  # Clean up the temporary file if it exists
-        return None
-
-# Function to convert extracted table to Excel
-def convert_table_to_excel(tables):
-    """Convert pdfplumber tables to an Excel file"""
-    # Create a Pandas Excel writer object
-    output = BytesIO()
-
-    with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        for i, table in enumerate(tables):
-            # Write each table to a sheet in Excel
-            table.to_excel(writer, sheet_name=f'Table_{i + 1}', index=False)
-
-    output.seek(0)  # Move to the beginning of the BytesIO object
-    return output
 
 # Function to display keyword stats in a table
 def display_keyword_stats(filtered_results, keywords):
@@ -233,13 +148,11 @@ def display_pdf_pages(pdf_path, pages_with_matches, keywords):
     
     return images
 
-
-
 # Main function to run the Streamlit app
 def run():
     # Streamlit UI components
-    st.title("📄 **PDF Keyword Extractor & Table Extractor**")
-    st.markdown("This tool helps you extract text from PDFs and search for specific keywords. The matched keywords will be highlighted in the text along with their surrounding context. Additionally, you can extract tables from specific pages and save them as Excel files.")
+    st.title("📄 **PDF Keyword Extractor**")
+    st.markdown("This tool helps you extract text from PDFs and search for specific keywords. The matched keywords will be highlighted in the text along with their surrounding context.")
 
     # Upload PDF file
     pdf_file = st.file_uploader("Upload PDF file", type=["pdf"])
@@ -306,38 +219,5 @@ def run():
         else:
             st.warning("No matches found for the given keywords.")
 
-        pdf_stream = BytesIO(pdf_file.read())  # Convert bytes to a BytesIO stream for Camelot
-
-        # Add dropdown for table extraction type (structured vs unstructured)
-        table_type = st.selectbox("Choose table type", ("Structured Table", "Unstructured Table"))
-
-        # Prompt the user for a page number to extract the table from
-        page_number = st.number_input("Enter the page number to extract the table from:", min_value=1)
-
-        if page_number:
-            # Extract the table based on selected type
-            if table_type == "Structured Table":
-                # Use the function for structured table extraction
-                tables = extract_table_from_pdf_with_tabula(pdf_stream, page_number)
-            else:
-                # Use the function for unstructured table extraction
-                tables = extract_table_from_pdf_with_camelot(pdf_stream, page_number)
-
-            if tables:
-                st.write(f"Extracted Tables from Page {page_number}:")
-                for i, table in enumerate(tables):
-                    st.write(f"**Table {i + 1}:**")
-                    st.dataframe(table)
-
-                # Allow the user to download the table as an Excel file
-                excel_output = convert_table_to_excel(tables)
-                st.download_button(
-                    label="Download Table as Excel",
-                    data=excel_output,
-                    file_name=f"table_page_{page_number}.xlsx",
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
-            else:
-                st.write("No tables found on the selected page.")
 if __name__ == "__main__":
     run()
