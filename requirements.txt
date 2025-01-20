@@ -1,4 +1,4 @@
-PyMuPDF==1.21.2  # Correct PyMuPDF version
+PyMuPDF==1.23.0  # Updated to available version
 spacy==3.6.0
 streamlit==1.15.0
 camelot-py[cv]==2.0.0  # For table extraction
