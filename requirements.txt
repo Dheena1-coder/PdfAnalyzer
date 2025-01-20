@@ -1,0 +1,9 @@
+fitz==1.19.6  # PyMuPDF
+spacy==3.6.0
+streamlit==1.15.0
+camelot-py[cv]==2.0.0  # For table extraction
+pandas==1.5.3  # For handling Excel conversion
+pdfplumber==0.8.0
+tabula-py==2.5.3
+Pillow==9.2.0  # For image processing
+
