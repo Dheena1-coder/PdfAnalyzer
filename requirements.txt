@@ -1,0 +1,5 @@
+pymupdf
+spacy
+streamlit
+pillow
+pandas
