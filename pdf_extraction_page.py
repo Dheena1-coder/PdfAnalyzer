@@ -8,14 +8,17 @@ import time
 from io import BytesIO
 from PIL import Image, ImageEnhance  # Import Pillow for image processing
 import tempfile
+from spacy.cli import download
 
 # Function to download the SpaCy model if it isn't installed
 def download_spacy_model():
     model_name = 'en_core_web_md'
-    model_path = os.path.join(spacy.util.get_data_path(), model_name)
-    if not os.path.exists(model_path):
+    try:
+        # Try to load the SpaCy model
+        spacy.load(model_name)
+    except OSError:
+        # If loading fails, download the model
         print(f"Model {model_name} not found. Downloading now...")
-        from spacy.cli import download
         download(model_name)
 
 # Download the model if not already available
