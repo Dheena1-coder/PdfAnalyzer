@@ -12,7 +12,7 @@ import zipfile
 import pip
 
 # Define the model ZIP file path and model name
-model_zip_path = "path_to_your_model.zip"  # Specify the correct path to your model ZIP file
+model_zip_path = "https://github.com/Dheena1-coder/PdfAnalyzer/blob/master/en_core_web_md-3.8.0-py3-none-any..zip"  # Specify the correct path to your model ZIP file
 whl_file_name = "en_core_web_md-3.8.0-py3-none-any.whl"  # The wheel file name from the ZIP
 model_name = "en_core_web_md"
 
