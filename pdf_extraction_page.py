@@ -8,41 +8,22 @@ import time
 from io import BytesIO
 from PIL import Image, ImageEnhance  # Import Pillow for image processing
 import tempfile
-import zipfile
-import pip
+import urllib.request
 
-# Define the model ZIP file path and model name
-model_zip_path = "https://github.com/Dheena1-coder/PdfAnalyzer/blob/master/en_core_web_md-3.8.0-py3-none-any..zip"  # Specify the correct path to your model ZIP file
-whl_file_name = "en_core_web_md-3.8.0-py3-none-any.whl"  # The wheel file name from the ZIP
-model_name = "en_core_web_md"
-
-# Function to extract the .whl file from the ZIP and install it
-def extract_and_install_spacy_model(zip_path, whl_file_name):
-    try:
-        # Create a temporary directory to extract the model
-        temp_dir = tempfile.mkdtemp()
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(temp_dir)
-        
-        # Construct the path to the .whl file
-        whl_path = os.path.join(temp_dir, whl_file_name)
-        
-        # Install the model from the .whl file using pip
-        print(f"Installing SpaCy model from {whl_path}...")
-        pip.main(['install', whl_path])  # Use pip to install the .whl file
-        print(f"SpaCy model installed successfully from {whl_path}.")
-    except Exception as e:
-        print(f"Error installing the model: {e}")
-
-# Function to ensure SpaCy model is loaded
+# Function to ensure SpaCy model is downloaded and loaded
 def ensure_model():
+    model_name = "en_core_web_sm"
     try:
         # Try to load the SpaCy model
         spacy.load(model_name)
     except OSError:
-        print(f"Model '{model_name}' not found, extracting and installing from ZIP file...")
-        extract_and_install_spacy_model(model_zip_path, whl_file_name)
+        # If the model is not found, download it
+        print(f"Downloading model: {model_name}...")
+        os.system("python -m spacy download en_core_web_sm")  # Download the model
         spacy.load(model_name)  # Load the model after installation
+
+# Ensure the model is downloaded and loaded
+ensure_model()
 
 # Function to extract keyword information and surrounding context from PDF
 def extract_keyword_info(pdf_path, keywords, surrounding_sentences_count=2):
@@ -59,7 +40,7 @@ def extract_keyword_info(pdf_path, keywords, surrounding_sentences_count=2):
 
         if text:
             # Process the text with SpaCy to create a document object
-            doc_spacy = spacy.load(model_name)(text)
+            doc_spacy = spacy.load("en_core_web_sm")(text)
 
             # Tokenize into sentences
             sentences = [sent.text for sent in doc_spacy.sents]
@@ -258,5 +239,4 @@ def run():
 
 
 if __name__ == "__main__":
-    ensure_model()
     run()
