@@ -3,3 +3,4 @@ spacy
 streamlit
 pillow
 pandas
+nltk
