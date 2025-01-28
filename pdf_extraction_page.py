@@ -38,6 +38,8 @@ def extract_keyword_info(pdf_path, keywords, surrounding_sentences_count=2):
     # Open the PDF file
     doc = fitz.open(pdf_path)
 
+    if len(doc) == 0:
+        raise ValueError("The uploaded PDF has no pages.")  # Check if the PDF is empty
     # Iterate through the pages
     for page_number in range(len(doc)):
         page = doc.load_page(page_number)  # Load the page
