@@ -87,7 +87,43 @@ def process_keywords_to_dict(df, team_type):
             keyword_dict[indicator][datapoint] = list(set(keyword_dict[indicator][datapoint]))
 
     return keyword_dict
+# Function to display keyword stats in a table
+def display_keyword_stats(filtered_results, keywords):
+    stats_data = []
+    for keyword in keywords:
+        pages_found = [page for page, matches in filtered_results.items() if any(keyword.lower() in match['sentence'].lower() for match in matches)]
+        stats_data.append([keyword, len(pages_found), pages_found])
 
+    stats_df = pd.DataFrame(stats_data, columns=["Keyword", "Occurrences", "Pages"])
+    st.write("### Keyword Statistics")
+    st.dataframe(stats_df)
+
+# Function to display PDF pages and highlight the keyword occurrences
+def display_pdf_pages(pdf_path, pages_with_matches, keywords):
+    doc = fitz.open(pdf_path)
+
+    images = {}
+
+    for i in range(len(doc)):
+        if i + 1 in pages_with_matches:
+            highlighted_pdf = highlight_pdf_page(pdf_path, i + 1, keywords)
+
+            doc_highlighted = fitz.open(highlighted_pdf)
+            page_highlighted = doc_highlighted.load_page(i)
+
+            pix = page_highlighted.get_pixmap(dpi=300)
+            pil_image = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+
+            enhancer = ImageEnhance.Contrast(pil_image)
+            pil_image = enhancer.enhance(1.5)
+
+            img_byte_arr = BytesIO()
+            pil_image.save(img_byte_arr, format="PNG")
+            img_byte_arr.seek(0)
+
+            images[i + 1] = img_byte_arr
+    
+    return images
 # Streamlit UI
 def run():
     # URLs of the GitHub Excel files (update with actual raw GitHub links)
@@ -181,46 +217,9 @@ def run():
                                 for context_sentence in match['surrounding_context']:
                                     st.write(f"  - {context_sentence}")
 
-                else:
-                    st.warning("No matches found for the selected keywords.")
+            else:
+                st.warning("No matches found for the selected keywords.")
 
-# Function to display keyword stats in a table
-def display_keyword_stats(filtered_results, keywords):
-    stats_data = []
-    for keyword in keywords:
-        pages_found = [page for page, matches in filtered_results.items() if any(keyword.lower() in match['sentence'].lower() for match in matches)]
-        stats_data.append([keyword, len(pages_found), pages_found])
-
-    stats_df = pd.DataFrame(stats_data, columns=["Keyword", "Occurrences", "Pages"])
-    st.write("### Keyword Statistics")
-    st.dataframe(stats_df)
-
-# Function to display PDF pages and highlight the keyword occurrences
-def display_pdf_pages(pdf_path, pages_with_matches, keywords):
-    doc = fitz.open(pdf_path)
-
-    images = {}
-
-    for i in range(len(doc)):
-        if i + 1 in pages_with_matches:
-            highlighted_pdf = highlight_pdf_page(pdf_path, i + 1, keywords)
-
-            doc_highlighted = fitz.open(highlighted_pdf)
-            page_highlighted = doc_highlighted.load_page(i)
-
-            pix = page_highlighted.get_pixmap(dpi=300)
-            pil_image = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-
-            enhancer = ImageEnhance.Contrast(pil_image)
-            pil_image = enhancer.enhance(1.5)
-
-            img_byte_arr = BytesIO()
-            pil_image.save(img_byte_arr, format="PNG")
-            img_byte_arr.seek(0)
-
-            images[i + 1] = img_byte_arr
-    
-    return images
 
 if __name__ == "__main__":
     run()
