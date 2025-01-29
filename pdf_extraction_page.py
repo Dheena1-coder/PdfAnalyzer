@@ -171,7 +171,14 @@ def run():
             selected_keywords.extend(extra_keywords)
 
         selected_keywords = list(set(selected_keywords))  # Remove duplicates after adding extra keywords
-        
+        # Select how many surrounding sentences to show
+        surrounding_sentences_count = st.slider(
+        "Select the number of surrounding sentences to show:",
+        min_value=1,
+        max_value=5,
+        value=2,
+        step=1
+    )   
         # Run the PDF extraction with the selected keywords
         pdf_file = st.file_uploader("Upload PDF file", type=["pdf"])
 
@@ -181,7 +188,7 @@ def run():
 
             keyword_results = {}
             for keyword in selected_keywords:
-                keyword_results[keyword] = extract_keyword_info("temp.pdf", [keyword])
+                keyword_results[keyword] = extract_keyword_info("temp.pdf", [keyword],surrounding_sentences_count)
 
             filtered_results = {}
             for keyword, matches in keyword_results.items():
