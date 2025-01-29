@@ -91,8 +91,8 @@ def process_keywords_to_dict(df, team_type):
 # Streamlit UI
 def run():
     # URLs of the GitHub Excel files (update with actual raw GitHub links)
-    sfdr_file_url = "https://github.com/Dheena1-coder/PdfAnalyzer/tree/master/sfdr_file.xlsx"  # Replace with actual SFDR Excel file URL
-    asset_file_url = "https://github.com/Dheena1-coder/PdfAnalyzer/tree/master/asset_file.xlsx"  # Replace with actual Asset Excel file URL
+    sfdr_file_url = "https://raw.github.com/Dheena1-coder/PdfAnalyzer/master/sfdr_file.xlsx"  # Replace with actual SFDR Excel file URL
+    asset_file_url = "https://raw.github.com/Dheena1-coder/PdfAnalyzer/master/asset_file.xlsx"  # Replace with actual Asset Excel file URL
 
     # Load and process the keyword dictionaries
     sfdr_df = load_keywords_from_github(sfdr_file_url)
