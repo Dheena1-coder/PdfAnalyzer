@@ -92,7 +92,7 @@ def process_keywords_to_dict(df, team_type):
 # Streamlit UI
 def run():
     # URLs of the GitHub Excel files (update with actual raw GitHub links)
-    sfdr_file_url = "https://github.com/your-repo/sfdr_file.xlsx"  # Replace with actual SFDR Excel file URL
+    sfdr_file_url = "sfdr_file.xlsx"  # Replace with actual SFDR Excel file URL
     asset_file_url = "https://github.com/your-repo/asset_file.xlsx"  # Replace with actual Asset Excel file URL
 
     # Load and process the keyword dictionaries
