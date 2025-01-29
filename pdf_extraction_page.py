@@ -158,7 +158,13 @@ def run():
     
     # Keyword Text Area: Allow users to add additional keywords
     extra_keywords_input = st.text_area("Additional Keywords (comma-separated)", "")
-
+    surrounding_sentences_count = st.slider(
+        "Select the number of surrounding sentences to show:",
+        min_value=1,
+        max_value=5,
+        value=2,
+        step=1
+    )   
     # If user submits
     if st.button("Submit"):
         # Extract relevant keywords based on the selected datapoint names
@@ -180,13 +186,6 @@ def run():
         selected_keywords = list(set(selected_keywords))  # Remove duplicates after adding extra keywords
         st.write(selected_keywords)
         # Select how many surrounding sentences to show
-        surrounding_sentences_count = st.slider(
-        "Select the number of surrounding sentences to show:",
-        min_value=1,
-        max_value=5,
-        value=2,
-        step=1
-    )   
 
 
         if pdf_file:
