@@ -12,7 +12,7 @@ import urllib.request
 import zipfile
 import nltk
 from nltk.tokenize import word_tokenize, sent_tokenize
-
+nltk.download('punkt')
 
 # Function to extract keyword information and surrounding context from PDF
 def extract_keyword_info(pdf_path, keywords, surrounding_sentences_count=2):
