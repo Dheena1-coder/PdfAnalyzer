@@ -62,9 +62,8 @@ def highlight_keywords(text, keywords):
 # Load the SFDR and Asset Keyword data from GitHub (URLs directly)
 def load_keywords_from_github(url):
     # Load the Excel file directly from GitHub
-    df = pd.read_excel(url)
+    df = pd.read_excel(url, engine='openpyxl')  
     return df
-
 # Process data into dictionary
 def process_keywords_to_dict(df, team_type):
     keyword_dict = {}
