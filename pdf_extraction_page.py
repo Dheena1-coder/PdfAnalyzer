@@ -52,7 +52,40 @@ def highlight_keywords(text, keywords):
     for keyword in keywords:
         text = re.sub(f'({re.escape(keyword)})', r'<b style="color: red;">\1</b>', text, flags=re.IGNORECASE)
     return text
+# Function to highlight keywords on a PDF page
+def highlight_pdf_page(pdf_path, page_number, keywords):
+    """Highlight keywords in the PDF page using rectangles"""
+    doc = fitz.open(pdf_path)
+    page = doc.load_page(page_number - 1)  # Page numbers are 1-based, so adjust for 0-based indexing
 
+    # Loop through each keyword to find and highlight occurrences
+    for keyword in keywords:
+        text_instances = page.search_for(keyword)  # Find the keyword locations in the text
+
+        for inst in text_instances:
+            # Create a rectangle based on the text instance
+            rect = fitz.Rect(inst)
+            # Draw a neon green rectangle around the keyword (no fill)
+            page.draw_rect(rect, color=(0, 1, 0))
+
+    # Save the updated PDF with a unique name based on the timestamp
+    timestamp = int(time.time())  # Get current timestamp
+    highlighted_pdf_path = f"temp_highlighted_page_{timestamp}.pdf"
+    # Check if the file already exists and try to delete it
+    if os.path.exists(highlighted_pdf_path):
+        try:
+            os.remove(highlighted_pdf_path)  # Try to remove the file if it exists
+        except PermissionError as e:
+            print(f"Error: Unable to delete {highlighted_pdf_path}. {e}")
+
+    # Save the file with a unique name
+    try:
+        doc.save(highlighted_pdf_path)
+        print(f"Highlighted PDF saved to: {highlighted_pdf_path}")
+    except Exception as e:
+        print(f"Error: Unable to save PDF: {e}")
+
+    return highlighted_pdf_path
 # Load the SFDR and Asset Keyword data from GitHub (URLs directly)
 def load_keywords_from_github(url):
     # Load the Excel file directly from GitHub
