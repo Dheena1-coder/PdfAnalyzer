@@ -155,8 +155,8 @@ def display_pdf_pages(pdf_path, pages_with_matches, keywords):
 # Streamlit UI
 def run():
     # Streamlit UI components
-    st.title("📄 **PDF Keyword Extractor & Table Extractor**")
-    st.markdown("This tool helps you extract text from PDFs and search for specific keywords. The matched keywords will be highlighted in the text along with their surrounding context. Additionally, you can extract tables from specific pages and save them as Excel files.")
+    st.title("📄 **PDF Keyword Extractor **")
+    st.markdown("This tool helps you extract text and their respective page from PDFs and search for specific keywords. The matched keywords will be highlighted in the pdf page and text along with their surrounding context. ")
 
     # Upload PDF file
     pdf_file = st.file_uploader("Upload PDF file", type=["pdf"])    
