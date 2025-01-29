@@ -165,14 +165,14 @@ def run():
                 selected_keywords.extend(asset_keywords_dict[indicator].get(datapoint, []))
 
         selected_keywords = list(set(selected_keywords))  # Remove duplicates
-
+        
         # Add any extra keywords entered in the text area
         if extra_keywords_input:
             extra_keywords = [keyword.strip() for keyword in extra_keywords_input.split(',')]
             selected_keywords.extend(extra_keywords)
 
         selected_keywords = list(set(selected_keywords))  # Remove duplicates after adding extra keywords
-        
+        st.write(selected_keywords)
         # Select how many surrounding sentences to show
         surrounding_sentences_count = st.slider(
         "Select the number of surrounding sentences to show:",
