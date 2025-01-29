@@ -13,11 +13,6 @@ import zipfile
 import nltk
 from nltk.tokenize import word_tokenize, sent_tokenize
 
-# NLTK setup
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt')  # Download 'punkt' if not available
 
 # Function to extract keyword information and surrounding context from PDF
 def extract_keyword_info(pdf_path, keywords, surrounding_sentences_count=2):
