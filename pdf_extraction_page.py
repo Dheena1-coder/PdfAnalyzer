@@ -122,6 +122,12 @@ def display_pdf_pages(pdf_path, pages_with_matches, keywords):
 
 # Streamlit UI
 def run():
+    # Streamlit UI components
+    st.title("📄 **PDF Keyword Extractor & Table Extractor**")
+    st.markdown("This tool helps you extract text from PDFs and search for specific keywords. The matched keywords will be highlighted in the text along with their surrounding context. Additionally, you can extract tables from specific pages and save them as Excel files.")
+
+    # Upload PDF file
+    pdf_file = st.file_uploader("Upload PDF file", type=["pdf"])    
     # URLs of the GitHub Excel files (update with actual raw GitHub links)
     sfdr_file_url = "https://raw.github.com/Dheena1-coder/PdfAnalyzer/master/sfdr_file.xlsx"  # Replace with actual SFDR Excel file URL
     asset_file_url = "https://raw.github.com/Dheena1-coder/PdfAnalyzer/master/asset_file.xlsx"  # Replace with actual Asset Excel file URL
@@ -181,8 +187,7 @@ def run():
         value=2,
         step=1
     )   
-        # Run the PDF extraction with the selected keywords
-        pdf_file = st.file_uploader("Upload PDF file", type=["pdf"])
+
 
         if pdf_file:
             st.write("PDF file uploaded successfully.")
