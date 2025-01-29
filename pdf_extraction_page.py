@@ -119,6 +119,7 @@ def display_pdf_pages(pdf_path, pages_with_matches, keywords):
             images[i + 1] = img_byte_arr
     
     return images
+
 # Streamlit UI
 def run():
     # URLs of the GitHub Excel files (update with actual raw GitHub links)
@@ -171,6 +172,7 @@ def run():
             selected_keywords.extend(extra_keywords)
 
         selected_keywords = list(set(selected_keywords))  # Remove duplicates after adding extra keywords
+        
         # Select how many surrounding sentences to show
         surrounding_sentences_count = st.slider(
         "Select the number of surrounding sentences to show:",
@@ -183,6 +185,7 @@ def run():
         pdf_file = st.file_uploader("Upload PDF file", type=["pdf"])
 
         if pdf_file:
+            st.write("PDF file uploaded successfully.")
             with open("temp.pdf", "wb") as f:
                 f.write(pdf_file.getbuffer())
 
@@ -221,7 +224,8 @@ def run():
 
             else:
                 st.warning("No matches found for the selected keywords.")
-
+        else:
+            st.warning("Please upload a PDF file.")
 
 if __name__ == "__main__":
     run()
