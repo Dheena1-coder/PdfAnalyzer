@@ -4,3 +4,4 @@ streamlit
 pillow
 pandas
 nltk
+openpyxl
