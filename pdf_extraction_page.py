@@ -45,7 +45,35 @@ def ensure_model():
         download_and_install_spacy_model()
         spacy.load('en_core_web_md')
 
+# Load the SFDR and Asset Keyword data from GitHub (URLs directly)
+def load_keywords_from_github(url):
+    # Load the Excel file directly from GitHub
+    df = pd.read_excel(url, engine='openpyxl')  
+    return df
 
+# Process data into dictionary
+def process_keywords_to_dict(df, team_type):
+    keyword_dict = {}
+    for index, row in df.iterrows():
+        indicator = row['SFDR Indicator'] if team_type == 'sfdr' else row['Asset/Report Type']
+        datapoint_name = row['Datapoint Name']
+        keywords = row['Keywords'].split(',')
+        keywords = [keyword.strip() for keyword in keywords]
+
+        if indicator not in keyword_dict:
+            keyword_dict[indicator] = {}
+
+        if datapoint_name not in keyword_dict[indicator]:
+            keyword_dict[indicator][datapoint_name] = []
+
+        keyword_dict[indicator][datapoint_name].extend(keywords)
+
+    # Optional: Remove duplicates within each list of keywords for each Datapoint Name
+    for indicator in keyword_dict:
+        for datapoint in keyword_dict[indicator]:
+            keyword_dict[indicator][datapoint] = list(set(keyword_dict[indicator][datapoint]))
+
+    return keyword_dict
 # Function to extract keyword information and surrounding context from PDF
 def extract_keyword_info(pdf_path, keywords, surrounding_sentences_count=2):
     keywords = [keyword.lower() for keyword in keywords]  # Convert keywords to lowercase
@@ -196,7 +224,52 @@ def run():
     # Upload PDF file
     pdf_file = st.file_uploader("Upload PDF file", type=["pdf"])
     keywords_input = st.text_area("Enter keywords to search (comma-separated)", "")
+    # URLs of the GitHub Excel files (update with actual raw GitHub links)
+    sfdr_file_url = "https://raw.github.com/Dheena1-coder/PdfAnalyzer/master/sfdr_file.xlsx"  # Replace with actual SFDR Excel file URL
+    asset_file_url = "https://raw.github.com/Dheena1-coder/PdfAnalyzer/master/asset_file.xlsx"  # Replace with actual Asset Excel file URL
+    # Load and process the keyword dictionaries
+    sfdr_df = load_keywords_from_github(sfdr_file_url)
+    asset_df = load_keywords_from_github(asset_file_url)
 
+    sfdr_keywords_dict = process_keywords_to_dict(sfdr_df, 'sfdr')
+    asset_keywords_dict = process_keywords_to_dict(asset_df, 'assets')
+
+    # Create dropdown for team selection
+    team_type = st.selectbox("Select Team", ["sfdr", "physical assets"])
+
+    # Display appropriate keyword dictionary based on team selection
+    if team_type == "sfdr":
+        indicators = list(sfdr_keywords_dict.keys())
+    else:
+        indicators = list(asset_keywords_dict.keys())
+    
+    indicator = st.selectbox("Select Indicator", indicators)
+    if team_type == "sfdr":
+        datapoint_names = list(sfdr_keywords_dict[indicator].keys())
+    else:
+        datapoint_names = list(asset_keywords_dict[indicator].keys())
+    
+    datapoint_name = st.multiselect("Select Datapoint Names", datapoint_names)
+    
+    # Keyword Text Area: Allow users to add additional keywords
+    extra_keywords_input = st.text_area("Additional Keywords (comma-separated)", "")
+
+    # Extract relevant keywords based on the selected datapoint names
+    selected_keywords = []
+    if team_type == "sfdr":
+        for datapoint in datapoint_name:
+            selected_keywords.extend(sfdr_keywords_dict[indicator].get(datapoint, []))
+    else:
+        for datapoint in datapoint_name:
+            selected_keywords.extend(asset_keywords_dict[indicator].get(datapoint, []))
+
+    selected_keywords = list(set(selected_keywords))  # Remove duplicates
+    
+    # Add any extra keywords entered in the text area
+    if extra_keywords_input:
+        extra_keywords = [keyword.strip() for keyword in extra_keywords_input.split(',')]
+        selected_keywords.extend(extra_keywords)
+    
     # Select how many surrounding sentences to show
     surrounding_sentences_count = st.slider(
         "Select the number of surrounding sentences to show:",
